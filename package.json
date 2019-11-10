@@ -1,0 +1,13 @@
+{
+  "author": "Facepunch",
+  "name": "com.facepunch.steamworks",
+  "displayName": "Steamworks",
+  "version": "2.2.0",
+  "description": "Steamworks Integration Library for Unity",
+  "homepage": "https://github.com/Facepunch/Facepunch.Steamworks",
+  "bugs": "https://github.com/Facepunch/Facepunch.Steamworks/issues",
+  "repository": "github:HouraiTeahouse/Facepunch.Steamworks",
+  "publishConfig": {
+    "registry": "https://upm.houraiteahouse.net"
+  }
+}
