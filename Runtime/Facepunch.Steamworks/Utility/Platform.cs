@@ -10,19 +10,11 @@ namespace Steamworks
 {
 	internal static class Platform
     {
-#if PLATFORM_WIN64
+#if UNITY_STANDALONE_WIN
 		public const int StructPlatformPackSize = 8;
 		public const string LibraryName = "steam_api64";
 		public const CallingConvention MemberConvention = CallingConvention.Cdecl;
-#elif PLATFORM_WIN32
-		public const int StructPlatformPackSize = 8;
-		public const string LibraryName = "steam_api";
-		public const CallingConvention MemberConvention = CallingConvention.ThisCall;
-#elif PLATFORM_POSIX32
-		public const int StructPlatformPackSize = 4;
-		public const string LibraryName = "libsteam_api";
-		public const CallingConvention MemberConvention = CallingConvention.Cdecl;
-#elif PLATFORM_POSIX64
+#elif UNITY_STANDALONE_OSX || UNITY_STANDALONE_LINUX
 		public const int StructPlatformPackSize = 4;
 		public const string LibraryName = "libsteam_api";
 		public const CallingConvention MemberConvention = CallingConvention.Cdecl;
