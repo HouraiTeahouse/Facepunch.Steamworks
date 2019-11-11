@@ -142,7 +142,17 @@ namespace Steamworks.Data
 		/// this isn't exposed because there's no way to read raw bytes atm, 
 		/// and I figure people can send json if they want something more advanced
 		/// </summary>
-		internal unsafe bool SendChatBytes( byte[] data )
+		public unsafe bool SendChatBytes( byte* data, int size )
+		{
+			return SteamMatchmaking.Internal.SendLobbyChatMsg( Id, (IntPtr)data, size );
+		}
+
+		/// <summary>
+		/// Sends bytes the the chat room
+		/// this isn't exposed because there's no way to read raw bytes atm, 
+		/// and I figure people can send json if they want something more advanced
+		/// </summary>
+		public unsafe bool SendChatBytes( byte[] data )
 		{
 			fixed ( byte* ptr = data )
 			{

@@ -723,7 +723,7 @@ namespace Steamworks
 	//
 	// ELobbyComparison
 	//
-	internal enum LobbyComparison : int
+	public enum LobbyComparison : int
 	{
 		EqualToOrLessThan = -2,
 		LessThan = -1,
