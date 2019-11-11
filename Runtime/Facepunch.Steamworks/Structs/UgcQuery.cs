@@ -175,7 +175,6 @@ namespace Steamworks.Ugc
 		List<string> requiredTags;
 		bool? matchAnyTag;
 		List<string> excludedTags;
-		Dictionary<string, string> requiredKv;
 
 		/// <summary>
 		/// Found items must have at least one of the defined tags
@@ -213,12 +212,6 @@ namespace Steamworks.Ugc
 			{
 				foreach ( var tag in excludedTags )
 					SteamUGC.Internal.AddExcludedTag( handle, tag );
-			}
-
-			if ( requiredKv != null )
-			{
-				foreach ( var tag in requiredKv )
-					SteamUGC.Internal.AddRequiredKeyValueTag( handle, tag.Key, tag.Value );
 			}
 
 			if ( matchAnyTag.HasValue )
