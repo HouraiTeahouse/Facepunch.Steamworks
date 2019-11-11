@@ -1,12 +1,12 @@
 ﻿namespace Steamworks.Data
 {
-	struct NumericalFilter
+	struct SearchFilter<T>
 	{
 		public string Key { get; internal set; }
-		public int Value { get; internal set; }
+		public T Value { get; internal set; }
 		public LobbyComparison Comparer { get; internal set; }
 
-		internal NumericalFilter ( string k, int v, LobbyComparison c )
+		internal SearchFilter ( string k, T v, LobbyComparison c )
 		{
 			Key = k;
 			Value = v;
