@@ -3,6 +3,11 @@ Another fucking c# Steamworks implementation
 
 [![Build Status](http://build.facepunch.com/buildStatus/icon?job=Facepunch/Facepunch.Steamworks/master)](http://build.facepunch.com/job/Facepunch/job/Facepunch.Steamworks/job/master/)
 
+**Note:** This is a Hourai Teahouse fork made specifically for HouraiNetworking.
+The repo has been restructured to work with Unity's Package Manager and several
+funtional changes have been made to expose needed types for use in
+HouraNetworking.
+
 ## Features
 
 | Feature | Supported |
@@ -32,6 +37,28 @@ The Steamworks C# implementations I found that were compatible with Unity have w
 
 C# is meant to make things easier. So lets try to wrap it up in a way that makes it all easier.
 
+## Installation
+
+Installation of this package requires Unity 2018.3 or higher.
+
+Under `Packages/manifest.json`, add the following lines, then open the Unity
+Editor. Note: this will add a scoped registry to your project.
+
+```json
+{
+  "dependencies": {
+    "com.discord.game-sdk": "1.0.0"
+  },
+  "scopedRegistries": [
+    {
+      "name": "Hourai Teahouse",
+      "url": "https://upm.houraiteahouse.net",
+      "scopes": ["com.facepunch"]
+    }
+  ]
+}
+```
+
 ## What
 
 ### Get your own information
@@ -48,7 +75,7 @@ foreach ( var friend in SteamFriends.GetFriends() )
 {
     Console.WriteLine( "{friend.Id}: {friend.Name}" );
     Console.WriteLine( "{friend.IsOnline} / {friend.SteamLevel}" );
-    
+
     friend.SendMessage( "Hello Friend" );
 }
 ```
@@ -96,7 +123,7 @@ List them
     foreach ( var a in SteamUserStats.Achievements )
     {
         Console.WriteLine( $"{a.Name} ({a.State}})" );
-    }	
+    }
 ```
 
 Unlock them
@@ -303,7 +330,7 @@ using Steamworks;
 
 // ...
 
-try 
+try
 {
     SteamClient.Init( 4000 );
 }
