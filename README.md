@@ -47,7 +47,7 @@ Editor. Note: this will add a scoped registry to your project.
 ```json
 {
   "dependencies": {
-    "com.discord.game-sdk": "1.0.0"
+    "com.facepunch.steamworks": "2.2.1"
   },
   "scopedRegistries": [
     {
