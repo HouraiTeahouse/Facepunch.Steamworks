@@ -2,7 +2,7 @@
   "author": "Facepunch",
   "name": "com.facepunch.steamworks",
   "displayName": "Steamworks",
-  "version": "2.2.1",
+  "version": "2.3.2",
   "description": "Steamworks Integration Library for Unity",
   "homepage": "https://github.com/Facepunch/Facepunch.Steamworks",
   "bugs": "https://github.com/Facepunch/Facepunch.Steamworks/issues",
