@@ -41,12 +41,12 @@ namespace Steamworks.Data
 		#endregion
 
 		#region String key/value filter
-		internal List<SearchFilter<string>> stringFilters;
+		internal Dictionary<string, string> stringFilters;
 
 		/// <summary>
 		/// Filter by specified key/value pair; string parameters
 		/// </summary>
-		public LobbyQuery AddStringFilter( string key, string value, LobbyComparison compare )
+		public LobbyQuery WithKeyValue( string key, string value )
 		{
 			if ( string.IsNullOrEmpty( key ) )
 				throw new System.ArgumentException( "Key string provided for LobbyQuery filter is null or empty", nameof( key ) );
@@ -55,21 +55,57 @@ namespace Steamworks.Data
 				throw new System.ArgumentException( $"Key length is longer than {SteamMatchmaking.MaxLobbyKeyLength}", nameof( key ) );
 
 			if ( stringFilters == null )
-				stringFilters = new List<SearchFilter<string>>();
+				stringFilters = new Dictionary<string, string>();
 
-			stringFilters.Add(new SearchFilter<string>( key, value, compare ));
+			stringFilters.Add( key, value );
 
 			return this;
 		}
 		#endregion
 
 		#region Numerical filters
-		internal List<SearchFilter<int>> numericalFilters;
+		internal List<NumericalFilter> numericalFilters;
+
+		/// <summary>
+		/// Numerical filter where value is less than the value provided
+		/// </summary>
+		public LobbyQuery WithLower( string key, int value )
+		{
+			AddNumericalFilter( key, value, LobbyComparison.LessThan );
+			return this;
+		}
+
+		/// <summary>
+		/// Numerical filter where value is greater than the value provided
+		/// </summary>
+		public LobbyQuery WithHigher( string key, int value )
+		{
+			AddNumericalFilter( key, value, LobbyComparison.GreaterThan );
+			return this;
+		}
+
+		/// <summary>
+		/// Numerical filter where value must be equal to the value provided
+		/// </summary>
+		public LobbyQuery WithEqual( string key, int value )
+		{
+			AddNumericalFilter( key, value, LobbyComparison.Equal );
+			return this;
+		}
+
+		/// <summary>
+		/// Numerical filter where value must not equal the value provided
+		/// </summary>
+		public LobbyQuery WithNotEqual( string key, int value )
+		{
+			AddNumericalFilter( key, value, LobbyComparison.NotEqual );
+			return this;
+		}
 
 		/// <summary>
 		/// Test key, initialize numerical filter list if necessary, then add new numerical filter
 		/// </summary>
-		public LobbyQuery AddNumericalFilter( string key, int value, LobbyComparison compare )
+		internal void AddNumericalFilter( string key, int value, LobbyComparison compare )
 		{
 			if ( string.IsNullOrEmpty( key ) )
 				throw new System.ArgumentException( "Key string provided for LobbyQuery filter is null or empty", nameof( key ) );
@@ -78,11 +114,9 @@ namespace Steamworks.Data
 				throw new System.ArgumentException( $"Key length is longer than {SteamMatchmaking.MaxLobbyKeyLength}", nameof( key ) );
 
 			if ( numericalFilters == null )
-				numericalFilters = new List<SearchFilter<int>>();
+				numericalFilters = new List<NumericalFilter>();
 
-			numericalFilters.Add( new SearchFilter<int>( key, value, compare ) );
-
-            return this;
+			numericalFilters.Add( new NumericalFilter( key, value, compare ) );
 		}
 		#endregion
 
@@ -159,7 +193,7 @@ namespace Steamworks.Data
 			{
 				foreach ( var k in stringFilters )
 				{
-					SteamMatchmaking.Internal.AddRequestLobbyListStringFilter( k.Key, k.Value, k.Comparer );
+					SteamMatchmaking.Internal.AddRequestLobbyListStringFilter( k.Key, k.Value, LobbyComparison.Equal );
 				}
 			}
 

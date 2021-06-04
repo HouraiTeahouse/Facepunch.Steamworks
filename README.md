@@ -1,7 +1,24 @@
 # Facepunch.Steamworks
-Another fucking c# Steamworks implementation
 
-[![Build Status](http://build.facepunch.com/buildStatus/icon?job=Facepunch/Facepunch.Steamworks/master)](http://build.facepunch.com/job/Facepunch/job/Facepunch.Steamworks/job/master/)
+[Another fucking c# Steamworks implementation](https://wiki.facepunch.com/steamworks/)
+
+![Build All](https://github.com/Facepunch/Facepunch.Steamworks/workflows/Build%20All/badge.svg)
+
+## Features
+
+| Feature | Supported |
+|----------|------------ |
+| Windows | ✔ |
+| Linux | ✔ |
+| MacOS | ✔ |
+| Unity Support | ✔ |
+| Unity IL2CPP Support | ✔ |
+| Async Callbacks (steam callresults) | ✔ |
+| Events (steam callbacks) | ✔ |
+| Single C# dll (no native requirements apart from Steam) | ✔ |
+| Open Source | ✔ |
+| MIT license | ✔ |
+| Any 32bit OS | ✔  |
 
 **Note:** This is a Hourai Teahouse fork made specifically for HouraiNetworking.
 The repo has been restructured to work with Unity's Package Manager and several
@@ -75,7 +92,6 @@ foreach ( var friend in SteamFriends.GetFriends() )
 {
     Console.WriteLine( "{friend.Id}: {friend.Name}" );
     Console.WriteLine( "{friend.IsOnline} / {friend.SteamLevel}" );
-
     friend.SendMessage( "Hello Friend" );
 }
 ```
@@ -97,7 +113,7 @@ foreach ( var friend in SteamFriends.GetFriends() )
     var image = await SteamFriends.GetLargeAvatarAsync( steamid );
     if ( !image.HasValue ) return DefaultImage;
 
-    return MakeTextureFromRGBA( image.Data, image.Width, image.Height );
+    return MakeTextureFromRGBA( image.Value.Data, image.Value.Width, image.Value.Height );
 ```
 
 ### Get a list of servers
@@ -122,7 +138,7 @@ List them
 ```csharp
     foreach ( var a in SteamUserStats.Achievements )
     {
-        Console.WriteLine( $"{a.Name} ({a.State}})" );
+        Console.WriteLine( $"{a.Name} ({a.State})" );
     }
 ```
 
@@ -267,7 +283,7 @@ Write a cloud file
 Read a cloud file
 
 ```csharp
-    var fileContents = SteamRemoteStorage.ReadFile( "file.txt" );
+    var fileContents = SteamRemoteStorage.FileRead( "file.txt" );
 ```
 
 List all files
@@ -375,6 +391,8 @@ catch ( System.Exception )
 Wanna help? Go for it, pull requests, bug reports, yes, do it.
 
 You can also hit up the [Steamworks Thread](http://steamcommunity.com/groups/steamworks/discussions/0/1319961618833314524/) for help/discussion.
+
+We also have [a wiki you can read](https://wiki.facepunch.com/steamworks/) and help fill out with examples and advice.
 
 # License
 

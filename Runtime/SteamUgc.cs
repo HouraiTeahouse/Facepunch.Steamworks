@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Steamworks.Data;
 
@@ -12,27 +13,25 @@ namespace Steamworks
 	/// Functions for accessing and manipulating Steam user information.
 	/// This is also where the APIs for Steam Voice are exposed.
 	/// </summary>
-	public static class SteamUGC
+	public class SteamUGC : SteamSharedClass<SteamUGC>
 	{
-		static ISteamUGC _internal;
-		internal static ISteamUGC Internal
-		{
-			get
-			{
-				if ( _internal == null )
-				{
-					_internal = new ISteamUGC();
-					_internal.Init();
-				}
+		internal static ISteamUGC Internal => Interface as ISteamUGC;
 
-				return _internal;
-			}
+		internal override void InitializeInterface( bool server )
+		{
+			SetInterface( server, new ISteamUGC( server ) );
+			InstallEvents( server );
 		}
 
-		internal static void Shutdown()
+		internal static void InstallEvents( bool server )
 		{
-			_internal = null;
+			Dispatch.Install<DownloadItemResult_t>( x => OnDownloadItemResult?.Invoke( x.Result ), server );
 		}
+
+		/// <summary>
+		/// Posted after Download call
+		/// </summary>
+		public static event Action<Result> OnDownloadItemResult;
 
 		public static async Task<bool> DeleteFileAsync( PublishedFileId fileId )
 		{
@@ -40,9 +39,89 @@ namespace Steamworks
 			return r?.Result == Result.OK;
 		}
 
+		/// <summary>
+		/// Start downloading this item. You'll get notified of completion via OnDownloadItemResult.
+		/// </summary>
+		/// <param name="fileId">The ID of the file you want to download</param>
+		/// <param name="highPriority">If true this should go straight to the top of the download list</param>
+		/// <returns>true if nothing went wrong and the download is started</returns>
 		public static bool Download( PublishedFileId fileId, bool highPriority = false )
 		{
 			return Internal.DownloadItem( fileId, highPriority );
+		}
+
+		/// <summary>
+		/// Will attempt to download this item asyncronously - allowing you to instantly react to its installation
+		/// </summary>
+		/// <param name="fileId">The ID of the file you want to download</param>
+		/// <param name="progress">An optional callback</param>
+		/// <param name="ct">Allows you to send a message to cancel the download anywhere during the process</param>
+		/// <param name="milisecondsUpdateDelay">How often to call the progress function</param>
+		/// <returns>true if downloaded and installed correctly</returns>
+		public static async Task<bool> DownloadAsync( PublishedFileId fileId, Action<float> progress = null, int milisecondsUpdateDelay = 60, CancellationToken ct = default )
+		{
+			var item = new Steamworks.Ugc.Item( fileId );
+
+			if ( ct == default )
+				ct = new CancellationTokenSource( TimeSpan.FromSeconds( 60 ) ).Token;
+
+			progress?.Invoke( 0.0f );
+
+			if ( Download( fileId, true ) == false )
+				return item.IsInstalled;
+
+			// Steam docs about Download:
+			// If the return value is true then register and wait
+			// for the Callback DownloadItemResult_t before calling 
+			// GetItemInstallInfo or accessing the workshop item on disk.
+
+			// Wait for DownloadItemResult_t
+			{
+				Action<Result> onDownloadStarted = null;
+
+				try
+				{
+					var downloadStarted = false;
+					
+					onDownloadStarted = r => downloadStarted = true;
+					OnDownloadItemResult += onDownloadStarted;
+
+					while ( downloadStarted == false )
+					{
+						if ( ct.IsCancellationRequested )
+							break;
+
+						await Task.Delay( milisecondsUpdateDelay );
+					}
+				}
+				finally
+				{
+					OnDownloadItemResult -= onDownloadStarted;
+				}
+			}
+
+			progress?.Invoke( 0.2f );
+			await Task.Delay( milisecondsUpdateDelay );
+
+			//Wait for downloading completion
+			{
+				while ( true )
+				{
+					if ( ct.IsCancellationRequested )
+						break;
+
+					progress?.Invoke( 0.2f + item.DownloadAmount * 0.8f );
+
+					if ( !item.IsDownloading && item.IsInstalled )
+						break;
+
+					await Task.Delay( milisecondsUpdateDelay );
+				}
+			}
+
+			progress?.Invoke( 1.0f );
+
+			return item.IsInstalled;
 		}
 
 		/// <summary>
@@ -64,5 +143,34 @@ namespace Steamworks
 
 			return item;
 		}
-	}
+
+		public static async Task<bool> StartPlaytimeTracking(PublishedFileId fileId)
+		{
+			var result = await Internal.StartPlaytimeTracking(new[] {fileId}, 1);
+			return result.Value.Result == Result.OK;
+		}
+		
+		public static async Task<bool> StopPlaytimeTracking(PublishedFileId fileId)
+		{
+			var result = await Internal.StopPlaytimeTracking(new[] {fileId}, 1);
+			return result.Value.Result == Result.OK;
+		}
+		
+		public static async Task<bool> StopPlaytimeTrackingForAllItems()
+		{
+			var result = await Internal.StopPlaytimeTrackingForAllItems();
+			return result.Value.Result == Result.OK;
+		}
+
+		/// <summary>
+		/// Suspends all workshop downloads.
+		/// Downloads will be suspended until you resume them by calling <see cref="ResumeDownloads"/> or when the game ends.
+		/// </summary>
+		public static void SuspendDownloads() => Internal.SuspendDownloads(true);
+
+		/// <summary>
+		/// Resumes all workshop downloads
+		/// </summary>
+		public static void ResumeDownloads() => Internal.SuspendDownloads(false);
+    }
 }
